@@ -1,4 +1,5 @@
 # coding: utf-8
+import time
 import numpy as np
 import pandas as pd
 import pprint
@@ -47,8 +48,7 @@ class Network:
         # Parameter init.
         self.learning_late = 0.5
         self.weight = np.zeros(2) # (1,) # np.ones((3,3)) ---> 3x3
-        self.b = 0
-        self.pre_cost = 0
+        self.pre_cost = 0.01
 
 
     def getDataset(self):
@@ -78,35 +78,37 @@ class Network:
         # Integrate the expansion of probability--->
         integration = 0
         for ite in range(self.X_train.shape[0]):
-            j = np.hstack(([1],self.X_train[ite]))
+            j = np.hstack(([1], self.X_train[ite]))
             #print(j)
             #print(j.shape)
             integration += math.log(sigmoid(self.weight, j))
+
+        '''
+        # Cost function--->
+        cost = -1 * integration / self.X_train.shape[0]
+
+        # Cost grad--->
+        cost_grad = cost - self.pre_cost
+        self.pre_cost = cost
+        '''
 
         # Cost function--->
         cost = -1 * integration / self.X_train.shape[0]
 
         # Cost grad--->
-        #cost_grad = 
-        cost_grad = cost - self.pre_cost
-        self.pre_cost = cost
+        print(self.Y_train)
+        for j in range(2):
+            cost_grad = 0
+            for i in range(self.X_train.shape[0]):
+                f = sigmoid(self.weight, np.hstack(([1], self.X_train[i])) )
+                cost_grad += (f - self.Y_train[i]) * self.X_train[i]
 
-        # Parameter update--->
+            # Parameter update--->
+            self.weight[j] += -1 * self.learning_late * cost_grad
+
+        #self.weight[1] += -1 * self.learning_late * cost_grad[1]
         #self.weight += -1 * self.learning_late * cost_grad
-        self.weight[1] += 1 * self.learning_late * cost_grad
-        print(self.weight)
-
-
-    def cost(self, _z):
-
-        #_z = (self.Y_train - z)**2
-        return _z
-        
-
-    def calcError(self):
-        pass
-        #h = self.weight.T * 1
-        #ans = sigmoid(h)
+        print("weight : ",self.weight)
 
 
     def predict(self, _input):
@@ -125,7 +127,26 @@ class Network:
 
 
     def plotResult(self):
-        plt.scatter(self.df['RM'], self.df['MEDV'])
+        # All data plot
+        plt.scatter(self.df['RM'], self.df['MEDV'], c='red')
+
+        # Test data plot
+        plt.scatter(self.X_test, self.Y_test, c='green')
+
+        # Predict plot
+        for i in range(self.Y_test.shape[0]):
+            #print(self.X_test[i].shape)
+            #print(self.X_test[i].shape)
+            x = self.X_test[i]
+            #y = self.weight[0]*1 + self.weight[1]*self.X_test[i]
+            y = np.dot(self.weight, np.hstack(([1], self.X_test[i])) )
+            plt.scatter(x, y, c='blue')
+            #print("x",x,"y",y)
+
+        #x = np.linspace(0,10,4)
+        #y = x
+        #plt.plot(x, y, "r-")
+
         plt.autoscale()
         plt.grid()
         plt.show()
@@ -134,7 +155,9 @@ class Network:
 # main --->
 network = Network()
 for i in range(10):
+    print("<<<",i,"loop>>>")
     network.train()
+    time.sleep(0.03)
 network.plotResult()
 #network.calcError()
 #print(sigmoid( np.array([1, 3]), np.array([2, 1])))
