@@ -8,6 +8,9 @@
 - 考察  
 これは小さいデータセットに対しては**学習率**を`0.1 ~ 0.5`のように大きな値を設定することにより、良い結果を得ることができるのではないかと考える.
 
+## TODO
+- etaを0.5にすると、nanがでてきて学習がうまくいかない
+
 ## Install
 ```
 $ wget https://archive.ics.uci.edu/ml/machine-learning-databases/housing/housing.data
