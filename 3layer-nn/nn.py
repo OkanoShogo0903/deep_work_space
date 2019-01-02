@@ -125,7 +125,7 @@ class Network:
                 glaph_x.append(i)
                 glaph_y.append(output_node - y)
         # Plot --->
-        if 0:
+        if 1:
             plt.title("Train process (Doller)")
             plt.plot(glaph_x, glaph_y)
             plt.show()
