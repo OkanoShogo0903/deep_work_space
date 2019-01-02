@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -28,9 +29,34 @@ def relu(x):
     return y
 
 
+SIGMOID_RANGE = 34.5387 # 34.538776394910684
 def sigmoid(x):
     ''' return 0~1 '''
-    return 1.0 / (1.0 + np.exp(-x))
+    try:
+        # オーバーフロー対策
+        x = np.where(x <= -SIGMOID_RANGE, 1e-10, x)
+        x = np.where(x >= SIGMOID_RANGE, 1.0 - 1e-10, x)
+        return 1.0 / (1.0 + np.exp(-x))
+    except FloatingPointError:
+        print "FloatingPointError"
+        print x
+        sys.exit()
+
+
+def boxPlot(y):
+    # Create box-plot
+    points = (y)
+    fig, ax = plt.subplots()
+    bp = ax.boxplot(points)
+
+    # Plot setting
+    plt.grid()
+    plt.title('Error Box plot')
+    plt.xlabel('Error')
+    plt.ylabel('Doller')
+    plt.ylim([-50,50])
+    # Draw
+    plt.show()
 
 
 def logsticRegressionPredict(t,x):
@@ -68,7 +94,7 @@ class Network:
         '''               
         # Parameter init. --->
         self.epoch = 1
-        self.eta = 0.1
+        self.eta = 0.3
         self.hidden_weight = np.ones((12,10)) #np.zeros()
         self.output_weight = np.ones(12) #np.zeros()
         #self.hidden_weight = np.random.randn(12, 10)
@@ -125,7 +151,7 @@ class Network:
                 glaph_x.append(i)
                 glaph_y.append(output_node - y)
         # Plot --->
-        if 1:
+        if 0:
             plt.title("Train process (Doller)")
             plt.plot(glaph_x, glaph_y)
             plt.show()
@@ -142,6 +168,8 @@ class Network:
             correct.append(y)
             error.append(output - y)
         # Plot result --->
+        boxPlot(error)
+        # Print result --->
         # 平均
         print "mean :", np.mean(error)
         # 分散
@@ -198,8 +226,10 @@ class Network:
                 # Sigmoid --->
                 #hidden_delta[j][i] = self.eta * (r-y) * y * (1-y) * output_delta[j] * z[j] * (1-z[j]) * x[i]
                 # Raw pass --->
-                hidden_delta[j][i] = self.eta * (r-y) * 1 * output_delta[j] * z[j] * (1-z[j]) * x[i]
-
+                part0 = (r-y)
+                part1 = round(part0, 5) * round(output_delta[j], 5)
+                part2 = z[j] * (1-z[j]) * x[i]
+                hidden_delta[j][i] = self.eta * round(part1, 5) * round(part2, 5)
         #print "x:", x
         #print'y:{:.3f}'.format(y), "r:", r
         #print "z:", z
@@ -212,6 +242,8 @@ class Network:
         #print "after ", self.output_weight[0]
 
 
+#np.seterr(over="print", under="print", invalid="print")
+np.seterr(all="raise")
 network = Network()
 network.train()
 network.test()
