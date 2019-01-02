@@ -68,11 +68,11 @@ class Network:
         '''               
         # Parameter init. --->
         self.epoch = 1
-        self.eta = 0.3
-        #self.hidden_weight = np.ones((12,10)) #np.zeros()
-        #self.output_weight = np.ones(12) #np.zeros()
-        self.hidden_weight = np.random.randn(12, 10)
-        self.output_weight = np.random.randn(12)
+        self.eta = 0.1
+        self.hidden_weight = np.ones((12,10)) #np.zeros()
+        self.output_weight = np.ones(12) #np.zeros()
+        #self.hidden_weight = np.random.randn(12, 10)
+        #self.output_weight = np.random.randn(12)
         self.x_key = ['CRIM','ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD', 'TAX']
         self.y_key = ['MEDV']
 
