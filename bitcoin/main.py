@@ -1,4 +1,5 @@
 import sys
+import math
 import types
 import pandas as pd
 import numpy as np
@@ -8,7 +9,7 @@ from tensorflow.python import debug as tf_debug
 from tensorflow.python.debug.lib.debug_data import has_inf_or_nan
 
 import keras
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers.core import Dense, Activation
 from keras.layers.recurrent import LSTM
 from keras.optimizers import Adam
@@ -20,10 +21,7 @@ from keras import backend as K
 # Timestamp,Open,High,Low,Close,Volume_(BTC),Volume_(Currency),Weighted_Price
 df = pd.read_csv('./coinbaseUSD_1-min_data_2014-12-01_to_2018-11-11.csv', sep=',')
 df.columns = ['time', 'open', 'high', 'low', 'close', 'volume_btc', 'volume_currency', 'weight_price']
-print ("***", type(df))
 df = df.fillna(df.mean())
-print ("***", type(df))
-#print (df)
 
 def set_debugger_session():
     sess = K.get_session()
@@ -47,26 +45,29 @@ def make_dataset(low_data, n_prev=100):
 
 
 if __name__ == '__main__':
+    is_load = None
     if len(sys.argv) > 1:
-        if sys.argv[1] == '--debug':
-            set_debugger_session()
-        else:
-            raise ValueError('unkown option :{}'.format(sys.argv[1]))
+        for argv in sys.argv[1:]: 
+            if argv == '--debug':
+                set_debugger_session()
+            elif argv == '--load':
+                is_load = True
+            else:
+                raise ValueError('unkown option :{}'.format(sys.argv[1]))
 
-    #g -> 学習データ，h -> 学習ラベル
-    f = df['open'].values[0:2014000]
-    #f = df['open'].values[2016200:2016300]
-    g, h = make_dataset(f)
-    #print ("g", "-"*50)
-    #print (g)
-    #print (g.shape)
-    #print ("h", "-"*50)
-    #print (h)
-    #print (h.shape)
+    #x_train -> 学習データ，y_train -> 学習ラベル
+    LABEL = 'open'
+    DATASET_LATE = 0.8
+    train_data = df[LABEL].values[:math.floor(len(df)*DATASET_LATE)-1]
+    test_data  = df[LABEL].values[math.floor(len(df)*DATASET_LATE):]
+    #train_data = df[LABEL].values[2014000:2016000]
+    #test_data  = df[LABEL].values[2016001:]
+    x_train, y_train = make_dataset(train_data)
+    x_test , y_test  = make_dataset(test_data)
 
     # モデル構築
     # 1つの学習データのStep数(今回は25)
-    length_of_sequence = g.shape[1] 
+    length_of_sequence = x_train.shape[1] 
     in_out_neurons = 1
     n_hidden = 300
 
@@ -74,26 +75,39 @@ if __name__ == '__main__':
     model.add(LSTM(n_hidden, batch_input_shape=(None, length_of_sequence, in_out_neurons), return_sequences=False))
     model.add(Dense(in_out_neurons))
     model.add(Activation("linear"))
-    optimizer = Adam(lr=0.05)
+    optimizer = Adam(lr=1.0)
     model.compile(loss="mean_squared_error", optimizer=optimizer)
 
     # Learning
     early_stopping = EarlyStopping(monitor='val_loss', mode='auto', patience=20)
-    model.fit(g, h,
-            batch_size=300,
-            epochs=100,
-            validation_split=0.1,
-            callbacks=[early_stopping]
-            )
+    if is_load != True:
+        model.fit(x_train, y_train,
+                batch_size=300,
+                epochs=1,
+                validation_split=0.1,
+                callbacks=[early_stopping]
+                )
 
-    plot_model(model, to_file='model.png')
-    # 予測
+        # Save model image 
+        plot_model(model, to_file='model.png')
+        # Model save
+        model.save("bitcoin.h5")
 
-    predicted = model.predict(g)
+    # Model load
+    load_model = load_model("bitcoin.h5")
 
+    # Predict
+    print ("x_test")
+    print (x_test)
+    print ("y_test")
+    print (y_test)
+    predicted = load_model.predict(x_test)
+
+    # Plot
+    print (predicted)
     plt.figure()
     plt.plot(range(25,len(predicted)+25), predicted, color="r", label="predict_data")
-    plt.plot(range(0, len(f)), f, color="b", label="row_data")
+    plt.plot(range(0, len(y_test)), y_test, color="b", label="raw_data")
     plt.legend()
     plt.show()
 
