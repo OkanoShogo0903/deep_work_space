@@ -112,10 +112,8 @@ class Network:
         for epoch in range(self.epoch):
             for x, y in zip(self.train_x, self.train_y):
                 #print(x.shape, y.shape)
-                #print ("err    ",self.predict(x) - y)
-                # Root squared error(RSE)
-                rse = np.power(y - self.predict(x), 2)/2
-                self.backpropagation(rse)
+                predict, hidden = self.predict(x)
+                self.backpropagation(x, y, predict, hidden)
 
 
     def predict(self, x):
@@ -124,22 +122,47 @@ class Network:
                 l_  = active(Wl + b)
                 l_' = active(W'l')
         '''
-        # 12x1 = 12*(10+1) (10+1)x1
+        # 12x1 = 12x(10+1) (10+1)x1
         hidden_node = np.dot(self.hidden_weight, np.append(np.array(1), x))
         hidden_node = relu(hidden_node)
 
-        # 1x1 = 1*(12+1) (12+1)x1
+        # 1x1 = 1x(12+1) (12+1)x1
         output_node = np.dot(self.output_weight, np.append(np.array(1), hidden_node))
         # Dont use activation function --->
 
-        return output_node
+        return output_node, hidden_node
 
 
-    def backpropagation(self, e):
+    def backpropagation(self, x, r, y, z):
         '''
+            ErrorFunction:
+                **Root squared error**
+                rse = np.power(y - self.predict(x), 2)/2
+            ActivationFunction:
+                **Sigmoid function**
+            @param
+                r is correct val
+                y is predict val
+                z is hidden layer unit's value
         '''
-        pass
+        # output weight  1x13
+        # hidden weight 12x11
+        #self.hidden_weight = np.zeros((12,10+1)) #np.zeros()
+        #self.output_weight = np.zeros(12+1) #np.zeros()
 
+        # Output-Hidden layer --->
+        # 1x13 = 1x1 * 1x1 * 13x1
+        output_delta += \
+                self.eta * (r - y) * y*(1 - y) * z
+
+        # Hidden-Input layer --->
+        # 12x11 = 1x1 * 1x1 * 1x13 * 13x1*13x1 * 10x1
+        hidden_delta = \
+                self.eta * (r - y) * y*(1 - y) * self.output_weight * z(1 - z) * x
+
+        self.output_weight += output_delta
+        self.hidden_weight += hidden_delta
+        
 
     def callStochasticGradientDescent(self):
         #x = self.
@@ -153,5 +176,4 @@ network.train()
 #network.callStochasticGradientDescent()
 #print(sigmoid( np.array([1, 3]), np.array([2, 1])))
 #print(type(df)) # <class 'pandas.core.frame.DataFrame'>
-
 
