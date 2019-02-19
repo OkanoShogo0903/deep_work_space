@@ -75,7 +75,7 @@ if __name__ == '__main__':
     model.add(LSTM(n_hidden, batch_input_shape=(None, length_of_sequence, in_out_neurons), return_sequences=False))
     model.add(Dense(in_out_neurons))
     model.add(Activation("linear"))
-    optimizer = Adam(lr=1.0)
+    optimizer = Adam(lr=0.5)
     model.compile(loss="mean_squared_error", optimizer=optimizer)
 
     # Learning
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     if is_load != True:
         model.fit(x_train, y_train,
                 batch_size=300,
-                epochs=1,
+                epochs=20,
                 validation_split=0.1,
                 callbacks=[early_stopping]
                 )
