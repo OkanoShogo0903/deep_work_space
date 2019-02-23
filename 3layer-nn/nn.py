@@ -38,8 +38,13 @@ def sigmoid(x):
         x = np.where(x >= SIGMOID_RANGE, 1.0 - 1e-10, x)
         return 1.0 / (1.0 + np.exp(-x))
     except FloatingPointError:
+<<<<<<< HEAD
         print ("FloatingPointError")
         print (x)
+=======
+        print "FloatingPointError"
+        print x
+>>>>>>> bf5f906c7396825b002f8add5d1b8dcbbf04c913
         sys.exit()
 
 
@@ -171,11 +176,19 @@ class Network:
         boxPlot(error)
         # Print result --->
         # 平均
+<<<<<<< HEAD
         print ("mean :", np.mean(error))
         # 分散
         print ("var  :", np.var(error))
         # 標準偏差
         print ("std  :", np.std(error))
+=======
+        print "mean :", np.mean(error)
+        # 分散
+        print "var  :", np.var(error)
+        # 標準偏差
+        print "std  :", np.std(error)
+>>>>>>> bf5f906c7396825b002f8add5d1b8dcbbf04c913
 
 
     def predict(self, x):

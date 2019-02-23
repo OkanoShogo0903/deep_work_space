@@ -1,6 +1,9 @@
+<<<<<<< HEAD
 # csv data
 *.csv
 
+=======
+>>>>>>> bf5f906c7396825b002f8add5d1b8dcbbf04c913
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
