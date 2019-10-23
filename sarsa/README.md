@@ -3,19 +3,19 @@
 
 つくりながら学ぶ！深層強化学習の著者ブログを参照して作られました
 
-**学習する環境**
+## 学習する環境
 ![figure_1](https://user-images.githubusercontent.com/25472671/48691146-cdbcbe80-ec14-11e8-8067-39409bed9940.png)
 
-**ゴールに到達するまでの移動回数の遷移**
+## ゴールに到達するまでの移動回数の遷移
 ![figure_1-1](https://user-images.githubusercontent.com/25472671/48691145-cdbcbe80-ec14-11e8-9514-295f01321beb.png)
 
-# Using
+## Using
 
 ```
 $ python scripts/main.py
 ```
 
-# Env
+## Env
 
 ```
 4.15.0-36-generic
