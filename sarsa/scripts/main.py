@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #=====================================================
-# https://book.mynavi.jp/manatee/detail/id=88534
+つくりながら学ぶ！深層強化学習
+https://book.mynavi.jp/manatee/books/detail/id=91985
 #=====================================================
 
 # Jupyterでmatplotlibを使用する宣言と、使用するライブラリの定義
